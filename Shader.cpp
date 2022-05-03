@@ -21,6 +21,8 @@ void Shader::checkCompileErrors(unsigned int shader, const std::string& type)   
         {
             glGetShaderInfoLog(shader, 1024, nullptr, infoLog);
             std::cout << "      ERROR::SHADER_COMPILATION_ERROR of type: " << type << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
+            return;
+
         }
     }
     else
@@ -30,6 +32,7 @@ void Shader::checkCompileErrors(unsigned int shader, const std::string& type)   
         {
             glGetProgramInfoLog(shader, 1024, nullptr, infoLog);
             std::cout << "      ERROR::PROGRAM_LINKING_ERROR of type: " << type << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
+            return;
         }
     }
 }
@@ -113,7 +116,7 @@ unsigned int Shader::load_shaders(std::initializer_list<std::string> ll){
     for (const auto& [shader_id, shader_path] : shaders) {
 
 
-        std::cout << "Shader:[" << shader_id << " "  << shader_path << "]\n";
+        std::cout << "      - [" << shader_id << " "  << shader_path << "]\n";
         std::string code;
         std::ifstream file;
         file.exceptions (std::ifstream::failbit | std::ifstream::badbit);
@@ -122,7 +125,7 @@ unsigned int Shader::load_shaders(std::initializer_list<std::string> ll){
         try
         {
             std::stringstream stream;
-            std::cout << shader_path.c_str() <<std::endl;
+            //std::cout << shader_path.c_str() <<std::endl;
 
             file.open(shader_path.c_str());
             stream << file.rdbuf();
@@ -136,6 +139,7 @@ unsigned int Shader::load_shaders(std::initializer_list<std::string> ll){
         catch (std::ifstream::failure& e)
         {
             std::cout << "      ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ" << std::endl;
+            return -1;
         }
         //std::cout << "      Successful read"<< std::endl;
         //std::cout << "      Length: "<<code.length() <<std::endl;
