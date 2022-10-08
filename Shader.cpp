@@ -37,8 +37,93 @@ void Shader::checkCompileErrors(unsigned int shader, const std::string& type)   
     }
 }
 
+GLuint Shader::create_compute_program() {
+    std::string computeShaderPath = "ComputeShader.comp";
+
+    std::string computeShaderCode;
+
+    std::ifstream computeShaderFile;
+
+    computeShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+
+    try
+    {
+        computeShaderFile.open(computeShaderPath);
+        std::stringstream computeShaderStream;
+        computeShaderStream << computeShaderFile.rdbuf();
+        computeShaderFile.close();
+        computeShaderCode = computeShaderStream.str();
+    }
+    catch (std::ifstream::failure& e)
+    {
+        std::cout << "      ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ" << std::endl;
+    }
+
+    const char* computeShaderCodeChar = computeShaderCode.c_str();
+
+    GLuint ray_shader = glCreateShader(GL_COMPUTE_SHADER);
+    glShaderSource(ray_shader, 1, &computeShaderCodeChar, NULL);
+    glCompileShader(ray_shader);
+    // check for compilation errors as per normal here
+
+    GLuint ray_program = glCreateProgram();
+    glAttachShader(ray_program, ray_shader);
+    glLinkProgram(ray_program);
+
+    return ray_program;
+
+}
 
 
+GLuint Shader::create_quad_program() {
+    std::string vertexFile = "quad_shader.vert";
+    std::string fragmentFile = "quad_shader.frag";
+
+    std::string vertexCode;
+    std::string fragmentCode;
+
+    std::ifstream vShaderFile;
+    std::ifstream fShaderFile;
+
+    vShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+    fShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+
+    try
+    {
+        vShaderFile.open(vertexFile);
+        fShaderFile.open(fragmentFile);
+
+        std::stringstream vShaderStream, fShaderStream;
+
+        vShaderStream << vShaderFile.rdbuf();
+        fShaderStream << fShaderFile.rdbuf();
+
+        vShaderFile.close();
+        fShaderFile.close();
+
+        vertexCode = vShaderStream.str();
+        fragmentCode = fShaderStream.str();
+    }
+    catch (std::ifstream::failure& e)
+    {
+        std::cout << "      ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ" << std::endl;
+    }
+
+    const char* vShaderCode = vertexCode.c_str();
+    const char* fShaderCode = fragmentCode.c_str();
+
+    GLuint program     = glCreateProgram();
+    GLuint vert_shader = glCreateShader( GL_VERTEX_SHADER );
+    glShaderSource( vert_shader, 1, &vShaderCode, NULL );
+    glCompileShader( vert_shader );
+    glAttachShader( program, vert_shader );
+    GLuint frag_shader = glCreateShader( GL_FRAGMENT_SHADER );
+    glShaderSource( frag_shader, 1, &fShaderCode, NULL );
+    glCompileShader( frag_shader );
+    glAttachShader( program, frag_shader );
+    glLinkProgram( program );
+    return program;
+}
 
 
 unsigned int Shader::load_shaders(std::initializer_list<std::string> ll){

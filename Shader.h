@@ -32,9 +32,14 @@ public:
     unsigned int load_shaders(std::initializer_list<std::string> l);
     unsigned int loadShaders(std::initializer_list<std::string> l);
 
+    [[nodiscard]]
     bool isUsingTess() const{
         return usingTess;
     }
+
+    GLuint create_quad_program();
+
+    GLuint create_compute_program();
 
     // activate the shader
     // ------------------------------------------------------------------------
