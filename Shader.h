@@ -30,6 +30,7 @@ public:
 
     Shader();
     unsigned int load_shaders(std::initializer_list<std::string> l);
+    unsigned int loadComputeShader(std::string l);
     unsigned int loadShaders(std::initializer_list<std::string> l);
 
     [[nodiscard]]
@@ -65,10 +66,13 @@ public:
     {
         glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, &mat[0][0]);
     }
+
+
 private:
     // utility function for checking shader compilation/linking errors.
     // ------------------------------------------------------------------------
     static void checkCompileErrors(unsigned int shader, const std::string& type);
+
 
 };
 

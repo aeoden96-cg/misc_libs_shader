@@ -272,3 +272,99 @@ unsigned int Shader::load_shaders(std::initializer_list<std::string> ll){
 unsigned int Shader::loadShaders(std::initializer_list<std::string> l) {
     return Shader::load_shaders(l);
 }
+
+
+
+
+
+
+
+
+
+std::string load_file(std::string filename){
+
+//    std::cout << "Shader:[" << shader_id << " "  << shader_path << "]\n";
+    std::string code;
+    std::ifstream file;
+    file.exceptions (std::ifstream::failbit | std::ifstream::badbit);
+
+    try
+    {
+        std::stringstream stream;
+        std::cout << filename.c_str() <<std::endl;
+
+        file.open(filename.c_str());
+        stream << file.rdbuf();
+        file.close();
+
+        code   = stream.str();
+
+        //std::cout << code << std::endl;
+
+    }
+    catch (std::ifstream::failure& e)
+    {
+        std::cout << "      ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ" << std::endl;
+    }
+    //std::cout << "      Successful read"<< std::endl;
+    //std::cout << "      Length: "<<code.length() <<std::endl;
+
+    return code;
+
+}
+void print_shader_info_log( GLuint shader ) {
+    int max_length    = 4096;
+    int actual_length = 0;
+    char slog[4096];
+    glGetShaderInfoLog( shader, max_length, &actual_length, slog );
+    fprintf( stderr, "shader info log for GL index %u\n%s\n", shader, slog );
+}
+
+void print_program_info_log( GLuint program ) {
+    int max_length    = 4096;
+    int actual_length = 0;
+    char plog[4096];
+    glGetProgramInfoLog( program, max_length, &actual_length, plog );
+    fprintf( stderr, "program info log for GL index %u\n%s\n", program, plog );
+}
+
+bool check_shader_errors( GLuint shader ) {
+    GLint params = -1;
+    glGetShaderiv( shader, GL_COMPILE_STATUS, &params );
+    if ( GL_TRUE != params ) {
+        fprintf( stderr, "ERROR: shader %u did not compile\n", shader );
+        print_shader_info_log( shader );
+        return false;
+    }
+    return true;
+}
+bool check_program_errors( GLuint program ) {
+    GLint params = -1;
+    glGetProgramiv( program, GL_LINK_STATUS, &params );
+    if ( GL_TRUE != params ) {
+        fprintf( stderr, "ERROR: program %u did not link\n", program );
+        print_program_info_log( program );
+        return false;
+    }
+    return true;
+}
+
+
+unsigned int Shader::loadComputeShader(std::string l) {
+    ID = 0;
+    // create the compute shader
+
+    std::string code = load_file(l);
+    const char* shaderCode = code.c_str();
+
+    GLuint ray_shader = glCreateShader( GL_COMPUTE_SHADER );
+    glShaderSource( ray_shader, 1, &shaderCode, nullptr );
+    glCompileShader( ray_shader );
+    ( check_shader_errors( ray_shader ) ); // code moved to gl_utils.cpp
+    ID = glCreateProgram();
+    glAttachShader( ID, ray_shader );
+    glLinkProgram( ID );
+    ( check_program_errors( ID ) ); // code moved to gl_utils.cpp
+
+    return ID;
+}
